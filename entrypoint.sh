@@ -23,10 +23,15 @@ if [ "$KEY_PATH" -a "$CERTIFICATE_PATH" ]; then
 	chmod 640 /etc/exim4/exim.crt
 fi
 
+RELAY_NETWORKS_VALUE="$(ip addr show dev eth0 | awk '$1 == "inet" { print $2 }')"
+if [ "$RELAY_NETWORKS" ]; then
+  RELAY_NETWORKS_VALUE="${RELAY_NETWORKS}"
+fi
+
 opts=(
 	dc_local_interfaces "[0.0.0.0]:${PORT:-25} ; [::0]:${PORT:-25}"
 	dc_other_hostnames ''
-	dc_relay_nets "$(ip addr show dev eth0 | awk '$1 == "inet" { print $2 }' | xargs | sed 's/ /:/g')${RELAY_NETWORKS}"
+	dc_relay_nets "${RELAY_NETWORKS_VALUE}"
 )
 
 if [ "$DISABLE_IPV6" ]; then 
